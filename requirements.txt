@@ -1,0 +1,7 @@
+flask
+tensorflow
+yfinance
+pandas
+numpy
+joblib
+scikit-learn

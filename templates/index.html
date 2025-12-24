@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSTM Stock Price Forecast</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom, #1e3c72, #2a5298); color: #e0e0e0; margin: 0; padding: 20px; min-height: 100vh; }
+        .container { max-width: 1100px; margin: auto; background: rgba(0,0,0,0.4); padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { text-align: center; color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.5); margin-bottom: 10px; }
+        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin: 30px 0; }
+        label { font-weight: bold; color: #00ffcc; }
+        input { padding: 12px; border-radius: 8px; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 16px; }
+        input:focus { outline: 2px solid #00ffcc; }
+        button { padding: 15px; background: #00ffcc; color: #1e3c72; font-weight: bold; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(0,255,204,0.9); }
+        .plot { text-align: center; margin: 40px 0; }
+        .plot img { max-width: 100%; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+        .error { color: #ff6b6b; background: rgba(255,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 14px; text-align: center; }
+        th { background: #00ffcc; color: #1e3c72; font-size: 16px; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.05); }
+        tr:hover { background: rgba(0,255,204,0.15); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📈 LSTM Stock Price Forecaster</h1>
+        <p style="text-align:center; font-size:18px;">Deep Learning-powered stock price prediction</p>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div>
+                <label>Ticker Symbol</label>
+                <input type="text" name="ticker" value="{{ ticker }}" list="popular-tickers" placeholder="e.g., AAPL" required>
+                <datalist id="popular-tickers">
+                    <option value="AAPL">Apple Inc.</option>
+                    <option value="MSFT">Microsoft Corporation</option>
+                    <option value="GOOGL">Alphabet Inc. (Google)</option>
+                    <option value="AMZN">Amazon.com Inc.</option>
+                    <option value="TSLA">Tesla Inc.</option>
+                    <option value="NVDA">NVIDIA Corporation</option>
+                    <option value="META">Meta Platforms Inc.</option>
+                    <option value="BRK.B">Berkshire Hathaway</option>
+                    <option value="JPM">JPMorgan Chase & Co.</option>
+                    <option value="V">Visa Inc.</option>
+                </datalist>
+            </div>
+
+            <div>
+                <label>Start Date</label>
+                <input type="date" name="start_date" value="{{ start_date }}" required>
+            </div>
+
+            <div>
+                <label>End Date</label>
+                <input type="date" name="end_date" value="{{ end_date }}" required>
+            </div>
+
+            <div>
+                <label>Forecast Days (1-365)</label>
+                <input type="number" name="prediction_days" min="1" max="365" value="{{ prediction_days }}" required>
+            </div>
+
+            <button type="submit">🚀 Generate Forecast</button>
+        </form>
+
+        {% if plot_url %}
+            <div class="plot">
+                <img src="data:image/png;base64,{{ plot_url }}" alt="Stock Forecast">
+            </div>
+        {% endif %}
+
+        {% if forecast is not none %}
+            <h2 style="text-align:center; color:#00ffcc;">Predicted Prices (Next {{ prediction_days }} Days)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Predicted Close Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, row in forecast.iterrows() %}
+                    <tr>
+                        <td>{{ row.Date }}</td>
+                        <td>{{ row['Predicted Close Price'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</body>
+</html>
